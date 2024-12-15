@@ -1,14 +1,14 @@
 import matplotlib.pyplot as plt
 from shapely.geometry import LineString, Point
-import Data_Loader
+import Geo_Data as Geo_Data
 
 class Viwer():
-    def __init__(self, DL:Data_Loader.Data_Loader, fig_col:str="gray"):
-        self.DL = DL
+    def __init__(self, GD:Geo_Data.Geo_Data, fig_col:str="gray"):
+        self.GD = GD
         self.fig_col = fig_col
         # グラフの初期設定
         self.fig, self.ax = plt.subplots(figsize=(10, 10))
-        for _, row in DL.edges.iterrows():
+        for _, row in GD.edges.iterrows():
             line = row["geometry"]
             if isinstance(line, LineString):
                 x, y = line.xy
@@ -21,6 +21,6 @@ class Viwer():
 
 if __name__ == "__main__":
     place = "nagoya"
-    Data = Data_Loader.Data_Loader(place)
+    Data = Geo_Data.Geo_Data(place)
     VW = Viwer(Data)
     VW.show()

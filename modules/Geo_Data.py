@@ -1,7 +1,7 @@
 import osmnx as ox
 import geopandas
 
-class Data_Loader():
+class Geo_Data():
     def __init__(self, place:str):
         self.place = place
         self._G = ox.graph_from_place(self.place, network_type="all", custom_filter='["railway"~"rail|subway"]')
@@ -12,6 +12,6 @@ class Data_Loader():
 
 if __name__ == "__main__":
     place = "nagoya"
-    Data = Data_Loader(place)
+    Data = Geo_Data(place)
     longest_edge = Data.get_sorted_edges().iloc[-1]["geometry"]
     print(longest_edge)
