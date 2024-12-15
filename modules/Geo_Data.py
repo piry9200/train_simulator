@@ -4,11 +4,17 @@ import geopandas
 class Geo_Data():
     def __init__(self, place:str):
         self.place = place
-        #self._L = ox.graph_from_place(self.place, network_type="all", custom_filter='["railway"~"rail|subway"]')
+        #線路データを成形
         self.edges = ox.features_from_place(self.place, tags={"railway":["rail", "subway"]})
+        self.edges = self.edges[["geometry", "name"]]
+        self.edges = self.edges.dropna(how="any")
         self.edges["length"] = self.culc_length(self.edges)
-        self.stations = ox.features_from_place(self.place, tags={"public_transport":"station", "railway":"station"})
-        #self.edges = ox.graph_to_gdfs(self._L, nodes=False, edges=True)  #graph_*を使うと，LineStringの長さとかの情報が得られる
+        #駅データを成形
+        self.stations = ox.features_from_place(self.place, tags={"railway":"station"})
+        self.stations = self.stations[["geometry", "name"]]
+        self.stations = self.stations.dropna(how="any")
+        
+        
 
     def get_sorted_edges(self) -> geopandas.geodataframe.GeoDataFrame:
         return self.edges.sort_values("length")
@@ -20,6 +26,6 @@ class Geo_Data():
 
 
 if __name__ == "__main__":
-    place = "nagoya"
+    place = "Aichi,Japan"
     Data = Geo_Data(place)
-    print(Data.stations.iloc[0]["geometry"].x)
+    print(Data.edges)
