@@ -17,15 +17,24 @@ class Viwer():
             if isinstance(line, LineString):
                 x, y = line.xy
                 self.ax.plot(x, y, color="blue", linewidth=1)
+        
+        for _, row in GD.stations.iterrows():
+            point = row["geometry"]
+            if isinstance(point, Point):
+                x = point.x
+                y = point.y
+                self.ax.plot(x, y, color="green", marker="o", markersize=5)
+                
         #背景色を変更
         self.ax.set_facecolor(self.fig_col)
         #電車を表すための点オブジェクトをself.ax上に用意. ,は重要．ax.plotは複数の戻り値を返すが，その先頭だけを受け取りたい．
         self.train_point, = self.ax.plot([], [], 'ro', label="Train", markersize=5)
 
         # アニメーション作成
-        self.ani = FuncAnimation(fig=self.fig, func=self.step, interval=20, blit=True)
+        self.ani = FuncAnimation(fig=self.fig, func=self.step, interval=10, blit=True)
 
     def step(self, frame)->plt.axes:
+        print(f"frame:{frame}")
         train_coord = self.Train.coord
         self.Train.move()
         self.train_point.set_data([train_coord.x], [train_coord.y])  # リストに変換
