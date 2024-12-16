@@ -17,12 +17,12 @@ class Train():
 
 class Train_Manager():
     #インスタンス作成時に，走るレールの情報を持った電車を作成し，リストで管理
-    def __init__(self, rail:list[Point]): #ここのrailは後々railのリストに変更すべき
-        self.train_num = 1
+    def __init__(self, rails:list[list[Point]]): #ここのrailsは後々電車の運行を管理するクラスのインスタンスとかになるべき
+        self.train_num = len(rails)#ここも便宜的にこうしてる
         self.enableID = 0 #電車に付与するID．ある電車に付与するたびにインクリメント
         self.train_list:list[Train] = list()
-        for _ in range(self.train_num):
-            train = Train(self.enableID, rail)
+        for i in range(self.train_num):
+            train = Train(self.enableID, rails[i])
             self.train_list.append(train)
             self.enableID += 1 #IDをインクリメント
 
@@ -36,9 +36,12 @@ class Train_Manager():
     
 if __name__ == "__main__":
     data = Geo_Data()
-    route:MultiLineString = data.rail_data.iloc[6]["geometry"]
     distance_interval = 0.0001
-    rail = [route.interpolate(d) for d in np.arange(0, route.length, distance_interval)]
-    train_m = Train_Manager(rail)
+    route1:MultiLineString = data.rail_data.iloc[6]["geometry"]
+    rail1 = [route1.interpolate(d) for d in np.arange(0, route1.length, distance_interval)]
+    route2:MultiLineString = data.rail_data.iloc[0]["geometry"]
+    rail2 = [route2.interpolate(d) for d in np.arange(0, route2.length, distance_interval)]
+    rails = [rail1, rail2]
+    train_m = Train_Manager(rails)
     for i in range(30):
         print(train_m.step())

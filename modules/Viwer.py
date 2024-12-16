@@ -42,9 +42,12 @@ class Viwer():
 
 if __name__ == "__main__":
     data = Geo_Data()
-    route:MultiLineString = data.rail_data.iloc[6]["geometry"]
     distance_interval = 0.0001
-    rail = [route.interpolate(d) for d in np.arange(0, route.length, distance_interval)]
-    train_m = Train_Manager(rail)
+    route1:MultiLineString = data.rail_data.iloc[6]["geometry"]
+    rail1 = [route1.interpolate(d) for d in np.arange(0, route1.length, distance_interval)]
+    route2:MultiLineString = data.rail_data.iloc[0]["geometry"]
+    rail2 = [route2.interpolate(d) for d in np.arange(0, route2.length, distance_interval)]
+    rails = [rail1, rail2]
+    train_m = Train_Manager(rails)
     VW = Viwer(data, train_m)
     VW.show()
