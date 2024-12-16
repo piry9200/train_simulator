@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-from shapely.geometry import LineString, Point
+from shapely.geometry import LineString, Point, MultiLineString
 import numpy as np
 from Geo_Data import Geo_Data
 from Train import Train
@@ -17,6 +17,10 @@ class Viwer():
             if isinstance(line, LineString):
                 x, y = line.xy
                 self.ax.plot(x, y, color="blue", linewidth=1)
+            elif isinstance(line, MultiLineString):
+                for l in line.geoms:
+                    x, y = l.xy
+                    self.ax.plot(x, y, color="blue", linewidth=1)
         
         for _, row in GD.stations.iterrows():
             point = row["geometry"]
@@ -50,7 +54,7 @@ class Viwer():
 if __name__ == "__main__":
     place = "nagoya"
     data = Geo_Data(place)
-    route = data.get_sorted_edges().iloc[-1]["geometry"]
+    route:MultiLineString = data.edges.iloc[0]["geometry"]
     distance_interval = 0.0001
     rail = [route.interpolate(d) for d in np.arange(0, route.length, distance_interval)]
     train = Train(rail)
