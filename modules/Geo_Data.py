@@ -150,9 +150,10 @@ def convert_all(gdf, to):
 
 
 if __name__ == "__main__":
+    fig, ax = plt.subplots(figsize=(10, 10))
     place = "Aichi,Japan"
     Data = Geo_Data(place)
-    #Data.edges.plot(column="name")
-    #Data.stations.plot()
-    print(Data.edges)
+    Data.edges.plot(ax=ax, column="name", cmap="tab20c")
+    #Data.stations.plot(ax=ax)
+    plt.show()
     

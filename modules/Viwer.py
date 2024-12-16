@@ -12,15 +12,8 @@ class Viwer():
         self.fig_col = fig_col
         # グラフの初期設定
         self.fig, self.ax = plt.subplots(figsize=(10, 10))
-        for _, row in GD.edges.iterrows():
-            line = row["geometry"]
-            if isinstance(line, LineString):
-                x, y = line.xy
-                self.ax.plot(x, y, color="blue", linewidth=1)
-            elif isinstance(line, MultiLineString):
-                for l in line.geoms:
-                    x, y = l.xy
-                    self.ax.plot(x, y, color="blue", linewidth=1)
+        GD.edges.plot(ax=self.ax, column="name", cmap="tab20c")
+        GD.stations.plot(ax=self.ax)
         
         for _, row in GD.stations.iterrows():
             point = row["geometry"]
