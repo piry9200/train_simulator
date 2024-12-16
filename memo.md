@@ -18,6 +18,7 @@
 
 ### 属性
 - .xy(単体系): そのsfを構成する座標の一覧を返す．
-- geoms(Mulit*系):形成する単体のsfをsequenceで返す
+- .geoms(Mulit*系):形成する単体のsfをsequenceで返す
+- .length: 長さを変えず
 
 ### メソッド

@@ -7,18 +7,34 @@ import matplotlib.pyplot as plt
 
 
 class Geo_Data():
-    def __init__(self, place:str):
-        self.place = place
-        #線路データを成形
-        self.edges = ox.features_from_place(self.place, tags={"railway":["rail", "subway"]})
-        self.edges = self.edges[["geometry", "name"]]
-        self.edges = self.edges.dropna(how="any")
-        self.edges = convert_all(self.edges, "geopandas") #この関数で返ってくるgdfにはcrsがセットされてない
-        self.edges.crs = "epsg:4326"
-        #駅データを成形
-        self.stations = ox.features_from_place(self.place, tags={"railway":"station"})
-        self.stations = self.stations[["geometry", "name"]]
-        self.stations = self.stations.dropna(how="any")
+    def __init__(self):
+        self._rail_file = "/Users/k22018kk/pri_prg/python/train_simulator/data/railway_data/N02-20_RailroadSection.shp"
+        self._station_file = "/Users/k22018kk/pri_prg/python/train_simulator/data/railway_data/N02-20_Station.shp"
+        self._aichi_file = "/Users/k22018kk/pri_prg/python/train_simulator/data/Aichi_shape/N03-20240101_23.shp"
+        self._aichi_data = gpd.read_file(self._aichi_file)
+        self.rail_data = gpd.read_file(self._rail_file)
+        self.station_data = gpd.read_file(self._station_file)
+        #愛知県内の路線を切り出し，整える
+        self.rail_data = self.rail_data.overlay(self._aichi_data, how="intersection")
+        self.rail_data = self.rail_data[["N02_003", "N02_004", "N03_001", "N03_004", "geometry"]]
+        self.rail_data.columns = ["路線名", "運営会社", "都道府県", "市区町村", "geometry"]
+        #愛知県内の駅を切り出し，整える
+        self.station_data = self.station_data.overlay(self._aichi_data, how="intersection")
+        self.station_data = self.station_data[["N02_003", "N02_004", "N02_005", "N03_001", "N03_004", "geometry"]]
+        self.station_data.columns = ["路線名", "運営会社", "駅名", "都道府県", "市区町村", "geometry"]
+        self.station_data["geometry"] = self.station_data["geometry"].centroid
+        
+        # self.place = place
+        # #線路データを成形
+        # self.edges = ox.features_from_place(self.place, tags={"railway":["rail", "subway"]})
+        # self.edges = self.edges[["geometry", "name"]]
+        # self.edges = self.edges.dropna(how="any")
+        # self.edges = convert_all(self.edges, "geopandas") #この関数で返ってくるgdfにはcrsがセットされてない
+        # self.edges.crs = "epsg:4326"
+        # #駅データを成形
+        # self.stations = ox.features_from_place(self.place, tags={"railway":"station"})
+        # self.stations = self.stations[["geometry", "name"]]
+        # self.stations = self.stations.dropna(how="any")
     
 
 
@@ -151,9 +167,11 @@ def convert_all(gdf, to):
 
 if __name__ == "__main__":
     fig, ax = plt.subplots(figsize=(10, 10))
-    place = "Aichi,Japan"
-    Data = Geo_Data(place)
-    Data.edges.plot(ax=ax, column="name", cmap="tab20c")
-    #Data.stations.plot(ax=ax)
-    plt.show()
+    Data = Geo_Data()
+    #print(Data.station_data.head())
+    print(Data.rail_data.iloc[260])
+    # Data._aichi_data.plot(ax=ax, color="gray")
+    # Data.rail_data.plot(ax=ax, column="路線名", cmap="tab20c")
+    # Data.station_data.plot(ax=ax, markersize=10.0, column="路線名")
+    # plt.show()
     

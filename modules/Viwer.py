@@ -12,18 +12,13 @@ class Viwer():
         self.fig_col = fig_col
         # グラフの初期設定
         self.fig, self.ax = plt.subplots(figsize=(10, 10))
-        GD.edges.plot(ax=self.ax, column="name", cmap="tab20c")
-        GD.stations.plot(ax=self.ax)
-        
-        for _, row in GD.stations.iterrows():
-            point = row["geometry"]
-            if isinstance(point, Point):
-                x = point.x
-                y = point.y
-                self.ax.plot(x, y, color="green", marker="o", markersize=5)
-                
+        #愛知県と路線と駅をプロット
+        self.GD._aichi_data.plot(ax=self.ax, color="gray")
+        self.GD.rail_data.plot(ax=self.ax, column="路線名", cmap="tab20c")
+        self.GD.station_data.plot(ax=self.ax, markersize=9.0, column="路線名")        
         #背景色を変更
         self.ax.set_facecolor(self.fig_col)
+
         #電車を表すための点オブジェクトをself.ax上に用意. ,は重要．ax.plotは複数の戻り値を返すが，その先頭だけを受け取りたい．
         self.train_point, = self.ax.plot([], [], 'ro', label="Train", markersize=5)
 
@@ -31,7 +26,6 @@ class Viwer():
         self.ani = FuncAnimation(fig=self.fig, func=self.step, interval=10, blit=True)
 
     def step(self, frame)->plt.axes:
-        print(f"frame:{frame}")
         train_coord = self.Train.coord
         self.Train.move()
         self.train_point.set_data([train_coord.x], [train_coord.y])  # リストに変換
@@ -45,9 +39,8 @@ class Viwer():
         plt.show()
 
 if __name__ == "__main__":
-    place = "nagoya"
-    data = Geo_Data(place)
-    route:MultiLineString = data.edges.iloc[0]["geometry"]
+    data = Geo_Data()
+    route:LineString = data.rail_data.iloc[260]["geometry"]
     distance_interval = 0.0001
     rail = [route.interpolate(d) for d in np.arange(0, route.length, distance_interval)]
     train = Train(rail)
