@@ -14,10 +14,16 @@ class Geo_Data():
         self._aichi_data = gpd.read_file(self._aichi_file)
         self.rail_data = gpd.read_file(self._rail_file)
         self.station_data = gpd.read_file(self._station_file)
+
         #愛知県内の路線を切り出し，整える
         self.rail_data = self.rail_data.overlay(self._aichi_data, how="intersection")
-        self.rail_data = self.rail_data[["N02_003", "N02_004", "N03_001", "N03_004", "geometry"]]
-        self.rail_data.columns = ["路線名", "運営会社", "都道府県", "市区町村", "geometry"]
+        self.rail_data = self.rail_data[["N02_003", "geometry"]]
+        self.rail_data.columns = ["name", "geometry"]
+        #↓name(路線名)ごとにMultilineにまとめる. convertallの仕様上，路線名のカラム名を「name」にしている.
+        self.rail_data = convert_all(self.rail_data, "geopandas")
+        self.rail_data.columns = ["geometry", "路線名", ]
+        self.rail_data.crs = "EPSG:6668" #converallを使うとcrsが消えるので再設定
+
         #愛知県内の駅を切り出し，整える
         self.station_data = self.station_data.overlay(self._aichi_data, how="intersection")
         self.station_data = self.station_data[["N02_003", "N02_004", "N02_005", "N03_001", "N03_004", "geometry"]]
@@ -89,7 +95,7 @@ def reduce_lines(gdf, to, name):
             if isinstance(i, LineString):
                 list_of_tuple.append(tuple(i.coords))
             elif isinstance(i, MultiLineString): 
-                line_to_tuple(i, list_of_tuple)
+                line_to_tuple(i.geoms, list_of_tuple) #ここは借用元から改変．「i」->「i.geoms」.MultiLineをiterableに取り出すために「geoms」を使う
             
     if to == "pandas":
         list_to = list_to_df
@@ -169,7 +175,7 @@ if __name__ == "__main__":
     fig, ax = plt.subplots(figsize=(10, 10))
     Data = Geo_Data()
     #print(Data.station_data.head())
-    print(Data.rail_data.iloc[260])
+    print(Data.rail_data.iloc[0]["geometry"])
     # Data._aichi_data.plot(ax=ax, color="gray")
     # Data.rail_data.plot(ax=ax, column="路線名", cmap="tab20c")
     # Data.station_data.plot(ax=ax, markersize=10.0, column="路線名")
