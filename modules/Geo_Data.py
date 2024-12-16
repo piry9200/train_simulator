@@ -29,19 +29,6 @@ class Geo_Data():
         self.station_data = self.station_data[["N02_003", "N02_004", "N02_005", "N03_001", "N03_004", "geometry"]]
         self.station_data.columns = ["路線名", "運営会社", "駅名", "都道府県", "市区町村", "geometry"]
         self.station_data["geometry"] = self.station_data["geometry"].centroid # 駅はSTRINGで表されているので，それをPOINTへ変換
-        
-        # self.place = place
-        # #線路データを成形
-        # self.edges = ox.features_from_place(self.place, tags={"railway":["rail", "subway"]})
-        # self.edges = self.edges[["geometry", "name"]]
-        # self.edges = self.edges.dropna(how="any")
-        # self.edges = convert_all(self.edges, "geopandas") #この関数で返ってくるgdfにはcrsがセットされてない
-        # self.edges.crs = "epsg:4326"
-        # #駅データを成形
-        # self.stations = ox.features_from_place(self.place, tags={"railway":"station"})
-        # self.stations = self.stations[["geometry", "name"]]
-        # self.stations = self.stations.dropna(how="any")
-    
 
 
 # https://arakaki.tokyo/20210919/ から頂いた．同じnameを持つ行のLineStringをMultiLineにまとめる．
