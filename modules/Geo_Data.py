@@ -28,7 +28,7 @@ class Geo_Data():
         self.station_data = self.station_data.overlay(self._aichi_data, how="intersection")
         self.station_data = self.station_data[["N02_003", "N02_004", "N02_005", "N03_001", "N03_004", "geometry"]]
         self.station_data.columns = ["路線名", "運営会社", "駅名", "都道府県", "市区町村", "geometry"]
-        self.station_data["geometry"] = self.station_data["geometry"].centroid
+        self.station_data["geometry"] = self.station_data["geometry"].centroid # 駅はSTRINGで表されているので，それをPOINTへ変換
         
         # self.place = place
         # #線路データを成形
@@ -175,7 +175,7 @@ if __name__ == "__main__":
     fig, ax = plt.subplots(figsize=(10, 10))
     Data = Geo_Data()
     #print(Data.station_data.head())
-    print(Data.rail_data.iloc[0]["geometry"])
+    print(Data.rail_data)
     # Data._aichi_data.plot(ax=ax, color="gray")
     # Data.rail_data.plot(ax=ax, column="路線名", cmap="tab20c")
     # Data.station_data.plot(ax=ax, markersize=10.0, column="路線名")
