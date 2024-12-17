@@ -1,10 +1,12 @@
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib.animation import FuncAnimation
-from shapely.geometry import LineString, Point, MultiLineString
+from shapely.geometry import LineString, Point, MultiLineString, Polygon
 import numpy as np
+import Utils
 from Geo_Data import Geo_Data
 from Train_Manager import Train_Manager
+from geopandas import GeoDataFrame
 
 class Viwer():
     def __init__(self, GD:Geo_Data, Train_M:Train_Manager, fig_col:str="black"):
@@ -41,13 +43,36 @@ class Viwer():
         plt.show()
 
 if __name__ == "__main__":
+    # data = Geo_Data()
+    # distance_interval = 0.0001
+    # route1:MultiLineString = data.rail_data.iloc[6]["geometry"]
+    # rail1 = [route1.interpolate(d) for d in np.arange(0, route1.length, distance_interval)]
+    # route2:MultiLineString = data.rail_data.iloc[0]["geometry"]
+    # rail2 = [route2.interpolate(d) for d in np.arange(0, route2.length, distance_interval)]
+    # rails = [rail1, rail2]
+    # train_m = Train_Manager(rails)
+    # VW = Viwer(data, train_m)
+    # VW.show()
+
     data = Geo_Data()
     distance_interval = 0.0001
-    route1:MultiLineString = data.rail_data.iloc[6]["geometry"]
-    rail1 = [route1.interpolate(d) for d in np.arange(0, route1.length, distance_interval)]
-    route2:MultiLineString = data.rail_data.iloc[0]["geometry"]
-    rail2 = [route2.interpolate(d) for d in np.arange(0, route2.length, distance_interval)]
-    rails = [rail1, rail2]
-    train_m = Train_Manager(rails)
+    #路線を選択
+    route1_gdf = data.rail_data.iloc[0]
+    route1_MultiSt:MultiLineString = route1_gdf["geometry"]
+    #その路線で移動するための，始発駅と終点駅を選択
+    route1_line:str = route1_gdf["路線名"]
+    stations:GeoDataFrame = data.station_data[ data.station_data["路線名"] == route1_line ]
+    route1_departure:Polygon = stations[ stations["駅名"] == "岡崎" ]["geometry"].values[0]
+    route1_destination:Polygon = stations[ stations["駅名"] == "八草" ]["geometry"].values[0]
+    #決定した区間の走行位置を表すPointのリストを作る．
+    route1_MultiSt = Utils.culc_line_segment(route1_departure, route1_destination, route1_MultiSt) #区間のMultiStringでroute1_MultiStを上書き
+    route1_rail:list[Point] = [route1_MultiSt.interpolate(d) for d in np.arange(0, route1_MultiSt.length, distance_interval)]
+
+    #↑が複数あると仮定して，リストにまとめる
+    rails:list[list[Point]] = [route1_rail]
+    departures:list[Polygon] = [route1_departure]
+    destinations:list[Polygon] = [route1_destination]
+
+    train_m = Train_Manager(rails, departures, destinations)
     VW = Viwer(data, train_m)
     VW.show()
